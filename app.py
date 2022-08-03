@@ -18,7 +18,10 @@ with open(f'titanic.pkl', 'rb') as f:
 with open('dtypes.pkl', 'rb') as fh:
     dtypes = pickle.load(fh)
 
-pipeline = joblib.load('pipe.joblib')
+with open('pipe.pkl', 'rb') as fh:
+    pipeline = pickle.load(fh)
+
+#pipeline = joblib.load('pipe.joblib')
 cols = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
 columns_enc = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Sex_male', 'Embarked_Q',
        'Embarked_S']
@@ -30,6 +33,9 @@ def home():
 @app.route('/predict',methods=['POST'])
 def predict():
     int_features = [x for x in request.form.values()]
+    print('hola')
+    name = int_features.pop(0)
+
     final = np.array(int_features)
     data_unseen = pd.DataFrame([final], columns = cols).astype(dtypes)
 
@@ -43,7 +49,7 @@ def predict():
     else:
         result = 'Sobrevivir'
 
-    return render_template('main.html', pred='Muchachos, veremos si llega a {}'.format(result))
+    return render_template('main.html', pred=f'Muchachos, Me parece que {name} si llega a {result}')
 
 if __name__ == '__main__':
     app.run()
