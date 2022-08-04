@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template
-import joblib
+
 import pickle
 import pandas as pd
 import numpy as np
 
-app = Flask(__name__)
+#app = Flask(__name__)
 
 
 # Initialise the Flask app
@@ -21,7 +21,7 @@ with open('dtypes.pkl', 'rb') as fh:
 with open('pipe.pkl', 'rb') as fh:
     pipeline = pickle.load(fh)
 
-#pipeline = joblib.load('pipe.joblib')
+
 cols = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
 columns_enc = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Sex_male', 'Embarked_Q',
        'Embarked_S']
@@ -33,15 +33,23 @@ def home():
 @app.route('/predict',methods=['POST'])
 def predict():
     int_features = [x for x in request.form.values()]
-    print('hola')
+
+    #borro el valor inicial que es el nombre
     name = int_features.pop(0)
 
+    #array
     final = np.array(int_features)
+
+    #dataframe
     data_unseen = pd.DataFrame([final], columns = cols).astype(dtypes)
 
+    #trasnform pipeline
     x_predict = pipeline.transform(data_unseen)
+
+    #dataframe con el pipeline
     X_test_enc = pd.DataFrame(x_predict, columns=columns_enc)
 
+    #prediccion
     prediction = model.predict(X_test_enc)
 
     if prediction[0] == 0:
